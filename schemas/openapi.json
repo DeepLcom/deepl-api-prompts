@@ -1,0 +1,649 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "DeepL API",
+    "description": "The DeepL API provides programmatic access to DeepL's machine translation technology. This spec covers the core v2 endpoints for text translation, document translation, language detection, and glossary management.",
+    "version": "2.0",
+    "contact": {
+      "name": "DeepL API Support",
+      "url": "https://support.deepl.com",
+      "email": "api@deepl.com"
+    },
+    "license": {
+      "name": "DeepL API Terms of Service",
+      "url": "https://www.deepl.com/pro-license"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api-free.deepl.com/v2",
+      "description": "Free tier — API keys ending in :fx"
+    },
+    {
+      "url": "https://api.deepl.com/v2",
+      "description": "Paid tier"
+    }
+  ],
+  "security": [
+    { "deeplAuthKey": [] }
+  ],
+  "paths": {
+    "/translate": {
+      "post": {
+        "operationId": "translateText",
+        "summary": "Translate text",
+        "description": "Translates up to 50 text strings in a single request. The response preserves input order.",
+        "tags": ["Translation"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/TranslateRequest" },
+              "examples": {
+                "simple": {
+                  "summary": "Translate a single string",
+                  "value": { "text": ["Hello, world!"], "target_lang": "DE" }
+                },
+                "with_formality": {
+                  "summary": "Multiple strings with formality",
+                  "value": {
+                    "text": ["Good morning", "How are you?"],
+                    "source_lang": "EN",
+                    "target_lang": "DE",
+                    "formality": "prefer_less"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful translation",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/TranslateResponse" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" },
+          "456": { "$ref": "#/components/responses/QuotaExceeded" },
+          "500": { "$ref": "#/components/responses/ServerError" }
+        }
+      }
+    },
+    "/languages": {
+      "get": {
+        "operationId": "getLanguages",
+        "summary": "Get supported languages",
+        "description": "Returns the list of languages supported for translation (source or target).",
+        "tags": ["Languages"],
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Filter by language type.",
+            "schema": { "type": "string", "enum": ["source", "target"] }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of supported languages",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Language" }
+                }
+              }
+            }
+          },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      }
+    },
+    "/usage": {
+      "get": {
+        "operationId": "getUsage",
+        "summary": "Get API usage",
+        "description": "Returns the current character quota usage and limit.",
+        "tags": ["Account"],
+        "responses": {
+          "200": {
+            "description": "Usage data",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UsageResponse" }
+              }
+            }
+          },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      }
+    },
+    "/document": {
+      "post": {
+        "operationId": "uploadDocument",
+        "summary": "Upload a document for translation",
+        "description": "Step 1 of document translation. Upload the file as multipart/form-data.",
+        "tags": ["Document Translation"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": { "$ref": "#/components/schemas/DocumentUploadRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Document accepted for translation",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DocumentUploadResponse" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "413": { "$ref": "#/components/responses/PayloadTooLarge" },
+          "415": { "$ref": "#/components/responses/UnsupportedMediaType" },
+          "456": { "$ref": "#/components/responses/QuotaExceeded" }
+        }
+      }
+    },
+    "/document/{document_id}": {
+      "get": {
+        "operationId": "getDocumentStatus",
+        "summary": "Check document translation status",
+        "description": "Step 2 of document translation. Poll until status is 'done' or 'error'.",
+        "tags": ["Document Translation"],
+        "parameters": [
+          { "$ref": "#/components/parameters/document_id" },
+          {
+            "name": "document_key",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Document status",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DocumentStatusResponse" }
+              }
+            }
+          },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/document/{document_id}/result": {
+      "post": {
+        "operationId": "downloadDocument",
+        "summary": "Download translated document",
+        "description": "Step 3 of document translation. Download the binary of the translated file.",
+        "tags": ["Document Translation"],
+        "parameters": [
+          { "$ref": "#/components/parameters/document_id" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["document_key"],
+                "properties": {
+                  "document_key": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Translated document binary",
+            "content": {
+              "application/octet-stream": {
+                "schema": { "type": "string", "format": "binary" }
+              }
+            }
+          },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "503": { "$ref": "#/components/responses/ServiceUnavailable" }
+        }
+      }
+    },
+    "/glossaries": {
+      "get": {
+        "operationId": "listGlossaries",
+        "summary": "List glossaries",
+        "description": "Returns metadata for all glossaries associated with the account.",
+        "tags": ["Glossaries"],
+        "responses": {
+          "200": {
+            "description": "List of glossaries",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "glossaries": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/GlossaryInfo" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      },
+      "post": {
+        "operationId": "createGlossary",
+        "summary": "Create a glossary",
+        "description": "Creates a new glossary from a list of term pairs.",
+        "tags": ["Glossaries"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateGlossaryRequest" },
+              "example": {
+                "name": "Car Terminology EN-DE",
+                "source_lang": "EN",
+                "target_lang": "DE",
+                "entries": "automobile\tAuto\ngasoline\tBenzin",
+                "entries_format": "tsv"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Glossary created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GlossaryInfo" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "456": { "$ref": "#/components/responses/QuotaExceeded" }
+        }
+      }
+    },
+    "/glossaries/{glossary_id}": {
+      "get": {
+        "operationId": "getGlossary",
+        "summary": "Get glossary metadata",
+        "tags": ["Glossaries"],
+        "parameters": [{ "$ref": "#/components/parameters/glossary_id" }],
+        "responses": {
+          "200": {
+            "description": "Glossary metadata",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/GlossaryInfo" }
+              }
+            }
+          },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "delete": {
+        "operationId": "deleteGlossary",
+        "summary": "Delete a glossary",
+        "description": "Permanently deletes the glossary. This action cannot be undone.",
+        "tags": ["Glossaries"],
+        "parameters": [{ "$ref": "#/components/parameters/glossary_id" }],
+        "responses": {
+          "204": { "description": "Glossary deleted" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/glossaries/{glossary_id}/entries": {
+      "get": {
+        "operationId": "getGlossaryEntries",
+        "summary": "Get glossary entries",
+        "description": "Returns the term pairs of a glossary. Use Accept: text/tab-separated-values for TSV.",
+        "tags": ["Glossaries"],
+        "parameters": [
+          { "$ref": "#/components/parameters/glossary_id" },
+          {
+            "name": "Accept",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "enum": ["text/tab-separated-values", "text/csv"],
+              "default": "text/tab-separated-values"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Glossary entries in the requested format",
+            "content": {
+              "text/tab-separated-values": {
+                "schema": { "type": "string", "example": "automobile\tAuto\ngasoline\tBenzin\n" }
+              },
+              "text/csv": {
+                "schema": { "type": "string", "example": "automobile,Auto\ngasoline,Benzin\n" }
+              }
+            }
+          },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/glossary-language-pairs": {
+      "get": {
+        "operationId": "getGlossaryLanguagePairs",
+        "summary": "Get supported glossary language pairs",
+        "description": "Returns all source/target language pairs for which glossaries are supported.",
+        "tags": ["Glossaries"],
+        "responses": {
+          "200": {
+            "description": "Supported glossary language pairs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "supported_languages": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/GlossaryLanguagePair" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "deeplAuthKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "Value format: `DeepL-Auth-Key <your-api-key>`"
+      }
+    },
+    "parameters": {
+      "glossary_id": {
+        "name": "glossary_id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string", "format": "uuid" },
+        "description": "UUID of the glossary."
+      },
+      "document_id": {
+        "name": "document_id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string" },
+        "description": "Opaque document identifier returned by the upload endpoint."
+      }
+    },
+    "schemas": {
+      "TranslateRequest": {
+        "type": "object",
+        "required": ["text", "target_lang"],
+        "properties": {
+          "text": {
+            "type": "array",
+            "items": { "type": "string" },
+            "minItems": 1,
+            "maxItems": 50,
+            "description": "Strings to translate."
+          },
+          "target_lang": {
+            "type": "string",
+            "description": "Target language code (uppercase), e.g. DE, FR, PT-BR.",
+            "example": "DE"
+          },
+          "source_lang": {
+            "type": "string",
+            "description": "Source language code. Omit to auto-detect.",
+            "example": "EN"
+          },
+          "formality": {
+            "type": "string",
+            "enum": ["default", "more", "less", "prefer_more", "prefer_less"],
+            "default": "default"
+          },
+          "context": {
+            "type": "string",
+            "description": "Context hint for translation. Not billed."
+          },
+          "glossary_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Glossary UUID. Requires source_lang."
+          },
+          "tag_handling": {
+            "type": "string",
+            "enum": ["html", "xml"]
+          },
+          "split_sentences": {
+            "type": "string",
+            "enum": ["0", "1", "nonewlines"],
+            "default": "1"
+          },
+          "preserve_formatting": {
+            "type": "boolean",
+            "default": false
+          },
+          "splitting_tags": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "non_splitting_tags": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "ignore_tags": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      },
+      "TranslateResponse": {
+        "type": "object",
+        "required": ["translations"],
+        "properties": {
+          "translations": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Translation" }
+          }
+        }
+      },
+      "Translation": {
+        "type": "object",
+        "required": ["detected_source_language", "text"],
+        "properties": {
+          "detected_source_language": {
+            "type": "string",
+            "example": "EN"
+          },
+          "text": {
+            "type": "string",
+            "example": "Hallo, Welt!"
+          }
+        }
+      },
+      "Language": {
+        "type": "object",
+        "properties": {
+          "language": { "type": "string", "example": "DE" },
+          "name": { "type": "string", "example": "German" },
+          "supports_formality": { "type": "boolean" }
+        }
+      },
+      "UsageResponse": {
+        "type": "object",
+        "properties": {
+          "character_count": { "type": "integer", "example": 42150 },
+          "character_limit": { "type": "integer", "example": 500000 }
+        }
+      },
+      "GlossaryInfo": {
+        "type": "object",
+        "properties": {
+          "glossary_id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "ready": { "type": "boolean" },
+          "source_lang": { "type": "string" },
+          "target_lang": { "type": "string" },
+          "creation_time": { "type": "string", "format": "date-time" },
+          "entry_count": { "type": "integer" }
+        }
+      },
+      "CreateGlossaryRequest": {
+        "type": "object",
+        "required": ["name", "source_lang", "target_lang", "entries", "entries_format"],
+        "properties": {
+          "name": { "type": "string" },
+          "source_lang": { "type": "string" },
+          "target_lang": { "type": "string" },
+          "entries": {
+            "type": "string",
+            "description": "TSV or CSV-formatted string of term pairs."
+          },
+          "entries_format": {
+            "type": "string",
+            "enum": ["tsv", "csv"]
+          }
+        }
+      },
+      "GlossaryLanguagePair": {
+        "type": "object",
+        "properties": {
+          "source_lang": { "type": "string" },
+          "target_lang": { "type": "string" }
+        }
+      },
+      "DocumentUploadRequest": {
+        "type": "object",
+        "required": ["file", "target_lang"],
+        "properties": {
+          "file": { "type": "string", "format": "binary" },
+          "target_lang": { "type": "string" },
+          "source_lang": { "type": "string" },
+          "glossary_id": { "type": "string", "format": "uuid" },
+          "formality": { "type": "string", "enum": ["default", "more", "less", "prefer_more", "prefer_less"] },
+          "filename": { "type": "string" }
+        }
+      },
+      "DocumentUploadResponse": {
+        "type": "object",
+        "required": ["document_id", "document_key"],
+        "properties": {
+          "document_id": { "type": "string" },
+          "document_key": { "type": "string", "description": "Keep this secret — treat like a credential." }
+        }
+      },
+      "DocumentStatusResponse": {
+        "type": "object",
+        "required": ["document_id", "status"],
+        "properties": {
+          "document_id": { "type": "string" },
+          "status": {
+            "type": "string",
+            "enum": ["queued", "translating", "done", "error"]
+          },
+          "seconds_remaining": { "type": "integer" },
+          "billed_characters": { "type": "integer" },
+          "error_message": { "type": "string" }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" }
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Bad request — invalid or missing parameters",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "example": { "message": "Parameter 'target_lang' not specified." }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Authorization failed — check your API key",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "example": { "message": "Authorization failure, check authentication key" }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Resource not found",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+          }
+        }
+      },
+      "PayloadTooLarge": {
+        "description": "File exceeds maximum size limit (10 MB paid / 5 MB free)"
+      },
+      "UnsupportedMediaType": {
+        "description": "File type not supported for document translation"
+      },
+      "TooManyRequests": {
+        "description": "Rate limit exceeded — retry with exponential back-off"
+      },
+      "QuotaExceeded": {
+        "description": "Character quota for this billing period exceeded",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "example": { "message": "Quota exceeded" }
+          }
+        }
+      },
+      "ServerError": {
+        "description": "Internal server error — retry later",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+          }
+        }
+      },
+      "ServiceUnavailable": {
+        "description": "Translation not yet ready — retry later"
+      }
+    }
+  },
+  "tags": [
+    { "name": "Translation", "description": "Text translation endpoints" },
+    { "name": "Languages", "description": "Retrieve supported languages" },
+    { "name": "Account", "description": "Account and usage information" },
+    { "name": "Document Translation", "description": "Translate whole documents" },
+    { "name": "Glossaries", "description": "Create and manage term glossaries" }
+  ]
+}

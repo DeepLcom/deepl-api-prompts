@@ -1,0 +1,256 @@
+{
+  "info": {
+    "_postman_id": "deepl-api-collection-v1",
+    "name": "DeepL API",
+    "description": "Postman collection for the DeepL REST API v2. Import this file into Postman or Insomnia to get a fully configured set of requests.\n\n**Setup:**\n1. Create a Postman environment.\n2. Add a variable `DEEPL_API_KEY` with your key.\n3. Add a variable `DEEPL_HOST` set to `api-free.deepl.com` (free tier) or `api.deepl.com` (paid tier).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://{{DEEPL_HOST}}/v2",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      { "key": "key", "value": "Authorization", "type": "string" },
+      { "key": "value", "value": "DeepL-Auth-Key {{DEEPL_API_KEY}}", "type": "string" },
+      { "key": "in", "value": "header", "type": "string" }
+    ]
+  },
+  "item": [
+    {
+      "name": "Translation",
+      "item": [
+        {
+          "name": "Translate text",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/translate", "host": ["{{baseUrl}}"], "path": ["translate"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": [\"Hello, world!\"],\n  \"target_lang\": \"DE\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Translate one or more strings. Omit source_lang for auto-detection."
+          }
+        },
+        {
+          "name": "Translate with formality",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/translate", "host": ["{{baseUrl}}"], "path": ["translate"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": [\"Could you help me?\"],\n  \"source_lang\": \"EN\",\n  \"target_lang\": \"DE\",\n  \"formality\": \"prefer_less\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Translate with context",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/translate", "host": ["{{baseUrl}}"], "path": ["translate"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": [\"Save\"],\n  \"source_lang\": \"EN\",\n  \"target_lang\": \"DE\",\n  \"context\": \"Button label in a document editor application\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Translate HTML",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/translate", "host": ["{{baseUrl}}"], "path": ["translate"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": [\"<p>The <strong>latest</strong> update is <a href='/changelog'>available now</a>.</p>\"],\n  \"source_lang\": \"EN\",\n  \"target_lang\": \"DE\",\n  \"tag_handling\": \"html\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Translate with glossary",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/translate", "host": ["{{baseUrl}}"], "path": ["translate"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": [\"The automobile runs on gasoline.\"],\n  \"source_lang\": \"EN\",\n  \"target_lang\": \"DE\",\n  \"glossary_id\": \"{{GLOSSARY_ID}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Languages & Usage",
+      "item": [
+        {
+          "name": "Get source languages",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/languages?type=source",
+              "host": ["{{baseUrl}}"],
+              "path": ["languages"],
+              "query": [{ "key": "type", "value": "source" }]
+            }
+          }
+        },
+        {
+          "name": "Get target languages",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/languages?type=target",
+              "host": ["{{baseUrl}}"],
+              "path": ["languages"],
+              "query": [{ "key": "type", "value": "target" }]
+            }
+          }
+        },
+        {
+          "name": "Get usage",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/usage", "host": ["{{baseUrl}}"], "path": ["usage"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Document Translation",
+      "item": [
+        {
+          "name": "1. Upload document",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/document", "host": ["{{baseUrl}}"], "path": ["document"] },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": "/path/to/your/document.docx" },
+                { "key": "target_lang", "value": "DE", "type": "text" },
+                { "key": "source_lang", "value": "EN", "type": "text" }
+              ]
+            },
+            "description": "Upload a document for translation. Save the returned document_id and document_key."
+          }
+        },
+        {
+          "name": "2. Check document status",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/document/{{DOCUMENT_ID}}?document_key={{DOCUMENT_KEY}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["document", "{{DOCUMENT_ID}}"],
+              "query": [{ "key": "document_key", "value": "{{DOCUMENT_KEY}}" }]
+            },
+            "description": "Poll until status is 'done' or 'error'."
+          }
+        },
+        {
+          "name": "3. Download translated document",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/document/{{DOCUMENT_ID}}/result",
+              "host": ["{{baseUrl}}"],
+              "path": ["document", "{{DOCUMENT_ID}}", "result"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"document_key\": \"{{DOCUMENT_KEY}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Download the translated document binary. Save the response body as a file."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Glossaries",
+      "item": [
+        {
+          "name": "Get supported language pairs",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/glossary-language-pairs",
+              "host": ["{{baseUrl}}"],
+              "path": ["glossary-language-pairs"]
+            }
+          }
+        },
+        {
+          "name": "List glossaries",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/glossaries", "host": ["{{baseUrl}}"], "path": ["glossaries"] }
+          }
+        },
+        {
+          "name": "Create glossary",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/glossaries", "host": ["{{baseUrl}}"], "path": ["glossaries"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Car Terminology EN-DE\",\n  \"source_lang\": \"EN\",\n  \"target_lang\": \"DE\",\n  \"entries\": \"automobile\\tAuto\\ngasoline\\tBenzin\\nhood\\tMotorhaube\",\n  \"entries_format\": \"tsv\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Save the returned glossary_id for subsequent requests."
+          }
+        },
+        {
+          "name": "Get glossary",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/glossaries/{{GLOSSARY_ID}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["glossaries", "{{GLOSSARY_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "Get glossary entries",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "text/tab-separated-values" }],
+            "url": {
+              "raw": "{{baseUrl}}/glossaries/{{GLOSSARY_ID}}/entries",
+              "host": ["{{baseUrl}}"],
+              "path": ["glossaries", "{{GLOSSARY_ID}}", "entries"]
+            }
+          }
+        },
+        {
+          "name": "Delete glossary",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/glossaries/{{GLOSSARY_ID}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["glossaries", "{{GLOSSARY_ID}}"]
+            },
+            "description": "⚠️ Permanently deletes the glossary. This cannot be undone."
+          }
+        }
+      ]
+    }
+  ]
+}
