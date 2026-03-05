@@ -1,0 +1,12 @@
+{
+  "name": "deepl-agent-mcp-worker",
+  "version": "1.0.0",
+  "description": "DeepL Agent MCP Server — Cloudflare Worker",
+  "private": true,
+  "scripts": { "dev": "wrangler dev", "deploy": "wrangler deploy" },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.10.2",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": { "wrangler": "^3.99.0" }
+}

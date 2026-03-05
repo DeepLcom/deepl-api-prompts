@@ -1,72 +1,41 @@
-# Prompt: Translate Using a DeepL Glossary
+# glossary.md — Create and apply DeepL glossaries to your translation flow
 
-**Use when:** You have an existing DeepL glossary and want code that applies it during translation to enforce consistent terminology.
-
----
-
-## Context
-
-A DeepL glossary is a set of source→target term pairs linked to a specific language pair. Once created (see [create-glossary.md](./create-glossary.md)), you reference it by its UUID in every translation request.
-
-**Endpoint:** `POST /v2/translate`
-
-**Extra parameter:**
-
-| Parameter | Description |
-|---|---|
-| `glossary_id` | UUID of the glossary to apply |
-| `source_lang` | **Required** when using a glossary — you cannot omit it |
-| `target_lang` | Must match the glossary's target language |
-
-**Glossary language-pair restrictions:** Not all language pairs support glossaries. Fetch supported pairs first:
-
-```
-GET /v2/glossary-language-pairs
-```
-
-**Authentication:** `Authorization: DeepL-Auth-Key <key>` header.
+Analyses your codebase for domain-specific terminology, creates glossaries via the DeepL service, and threads the glossary IDs into existing translation calls. Uses the service module from the init prompts.
 
 ---
-
-## Prompt
 
 ```prompt
-You are an expert software engineer. Generate code that translates text using the DeepL API with a specific glossary applied.
+You are adding glossary-controlled translation to an existing application that already has a DeepL service set up. Do not install any packages and do not modify the DeepL service module. You have full read and write access to this codebase.
 
-Requirements:
-1. Read DEEPL_API_KEY from the environment.
-2. Auto-select host based on key suffix (:fx → api-free.deepl.com, else api.deepl.com).
-3. Accept these inputs: texts (string[]), sourceLang (string), targetLang (string), glossaryId (string).
-4. Validate up front that the glossary language pair is supported by calling GET /v2/glossary-language-pairs and checking that the source/target pair exists. Throw a descriptive error if not.
-5. POST to /v2/translate with { text, source_lang, target_lang, glossary_id }.
-6. Return translated strings in order.
-7. Handle errors:
-   - 403 → AuthError
-   - 404 → GlossaryNotFoundError("Glossary <id> not found")
-   - 456 → QuotaError
-   - 429 → retry with back-off
-   - other non-2xx → ApiError
-8. Print each original → translated pair clearly in the demo.
-9. Provide a runnable demo that uses a hard-coded glossary_id placeholder ("YOUR_GLOSSARY_ID") so the user only needs to swap in their real UUID.
+Step 1 — Verify the service exists
 
-Use idiomatic code with full error handling and docstrings.
+Search dependency files for the deepl package used by this project. Then search the codebase for the service or wrapper module that imports this package. If either is missing, stop and tell the user to run 0_init.md followed by the appropriate 1_*.md for their language before continuing.
+
+Step 2 — Discover the domain and existing translation calls
+
+Read the codebase identifyng: which source and target language pairs are used in existing translate calls. Domain-specific terms that appear in UI strings, API responses, documentation strings, or locale files — product names, technical terms, legal phrases, or brand vocabulary that must never be changed by the translation engine. Whether a glossary management file or term list already exists in the project.
+
+Step 3 — Verify supported language pairs
+
+Call the service's getGlossaryLanguagePairs method or equivalent to retrieve the list of language pairs that DeepL supports for glossaries. Filter your set of required language pairs to only those that are supported. Note any unsupported pairs in your summary.
+
+Step 4 — Create a glossary terms file
+
+Create a terms file — JSON, CSV, or whatever format fits the project — containing the domain-specific terms you identified. For each source term, include the intended translation in each target language. Include a comment explaining what this file is and that changing it requires re-running the glossary sync script.
+
+Step 5 — Create a glossary sync script
+
+Create a script that reads the terms file, calls the service's listGlossaries method to check which glossaries already exist, deletes and recreates any that are stale, calls the service's createGlossary method for each required language pair passing the name, source language, target language, and entries, and writes the resulting glossary IDs to a local config or environment file so they can be referenced at runtime. Follow the project's scripting conventions for script placement and entry-point style.
+
+Step 6 — Thread glossary IDs into existing translation calls
+
+Find all calls to the service's translate method in the codebase. For each call, determine the language pair in use and look up the corresponding glossary ID from the config written in step 5. Pass the glossary ID as an option on each matching call. If the ID lookup must happen at runtime rather than build time, load the IDs from the config file at application startup and inject them at the call site.
+
+Step 7 — Handle errors
+
+If a glossary ID is missing at runtime, fall back to translating without a glossary and log a warning. Never throw on a missing glossary ID.
+
+Step 8 — Print a summary
+
+List every file created or modified, the command to run the glossary sync script, the total number of glossaries that will be created, and the language pairs that could not be supported.
 ```
-
----
-
-## Example output
-
-```
-[EN → DE, glossary: 7a8b9c0d-...]
-  "The car runs on gasoline."  →  "Das Auto fährt mit Benzin."
-  "Open the hood."             →  "Öffne die Motorhaube."
-```
-
----
-
-## Caveats
-
-- `source_lang` is **mandatory** when `glossary_id` is provided; requests without it will return `400 Bad Request`.
-- A glossary is tied to exactly one language pair — you cannot reuse the same glossary for different pairs.
-- Glossary entries are case-sensitive by default.
-- Glossaries are not available for all language pairs. Always check `/v2/glossary-language-pairs` first.

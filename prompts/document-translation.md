@@ -1,104 +1,37 @@
-# Prompt: Translate a Document with the DeepL API
+# document-translation.md — Integrate DeepL document translation into your application
 
-**Use when:** You need to translate a whole file (PDF, Word, PowerPoint, etc.) rather than individual strings, preserving the original layout and formatting.
-
----
-
-## Context
-
-Document translation is a three-step async workflow:
-
-```
-1. POST /v2/document          → upload file → get { document_id, document_key }
-2. GET  /v2/document/{id}     → poll status until done (status: "done")
-3. GET  /v2/document/{id}/result → download translated binary
-```
-
-### Step 1 — Upload
-
-`POST /v2/document` — **multipart/form-data**
-
-| Field | Description |
-|---|---|
-| `file` | The file binary (field name must be `file`) |
-| `target_lang` | Target language code |
-| `source_lang` | Optional source language |
-| `glossary_id` | Optional glossary UUID |
-| `formality` | Optional formality setting |
-| `filename` | Optional override for the filename (affects MIME detection) |
-
-### Step 2 — Poll status
-
-`GET /v2/document/{document_id}?document_key={document_key}`
-
-```json
-{
-  "document_id": "abc123",
-  "status": "translating",   // "queued" | "translating" | "done" | "error"
-  "seconds_remaining": 12,
-  "billed_characters": 4200
-}
-```
-
-Poll every 2–5 seconds. Stop when `status` is `"done"` or `"error"`.
-
-### Step 3 — Download
-
-`POST /v2/document/{document_id}/result` with body `{ "document_key": "..." }`
-
-Returns the binary of the translated file. Save it with the original extension.
-
-**Supported formats:** `.pdf`, `.docx`, `.pptx`, `.xlsx`, `.txt`, `.html`, `.xlf`, `.srt`, `.xliff`, `.csv`
-
-**Authentication:** `Authorization: DeepL-Auth-Key <key>` header.
+Finds file upload or document handling flows in your codebase and integrates the DeepL document translation lifecycle using the existing service module from the init prompts.
 
 ---
-
-## Prompt
 
 ```prompt
-You are an expert software engineer. Generate code that translates a document file using the DeepL document translation API.
+You are adding document translation to an existing application that already has a DeepL service set up. Do not install any packages and do not modify the DeepL service module. You have full read and write access to this codebase.
 
-Requirements:
-1. Read DEEPL_API_KEY from the environment.
-2. Auto-select host: :fx → api-free.deepl.com, else api.deepl.com.
-3. Accept inputs: inputFilePath (string), targetLang (string), outputFilePath (string), and optional sourceLang and glossaryId.
-4. Step 1 — Upload: POST the file as multipart/form-data to /v2/document. Store the returned document_id and document_key.
-5. Step 2 — Poll: GET /v2/document/{document_id}?document_key=... every 3 seconds. Print progress (status + seconds_remaining) to stdout. Stop when status is "done". If status is "error", throw TranslationError with the error_message from the response.
-6. Step 3 — Download: POST to /v2/document/{document_id}/result, stream the binary response directly to outputFilePath. Do not load the whole file into memory at once (use streaming / chunked writes).
-7. Print a summary when done: input file, output file, billed characters, total time taken.
-8. Handle errors:
-   - 403 → AuthError
-   - 413 → FileTooLargeError("File exceeds DeepL's document size limit")
-   - 415 → UnsupportedFormatError("File type not supported by DeepL")
-   - 456 → QuotaError
-   - other non-2xx → ApiError with status and body
-9. Provide a runnable demo that translates a small .txt file from EN to DE (create the sample .txt file in the demo code).
+Step 1 — Verify the service exists
 
-Use streaming for the download, handle all errors, and add docstrings.
+Search dependency files for the deepl package used by this project. Then search the codebase for the service or wrapper module that imports this package. If either is missing, stop and tell the user to run 0_init.md followed by the appropriate 1_*.md for their language before continuing.
+
+Step 2 — Read the codebase
+
+Identify: where file uploads are received or stored — file system paths, cloud storage objects, database blobs, or temporary upload directories. What file types are handled — DOCX, PPTX, PDF, XLSX, HTML, or plain text. Whether background job processing exists — Sidekiq, Celery, BullMQ, Hangfire, or similar. How translated files will be delivered — download endpoint, email attachment, cloud storage URL, or written back to a record.
+
+Step 3 — Choose a document translation pattern
+
+DeepL document translation is always asynchronous at the API level — the flow is always upload, poll for completion, then download. If the project has a background job framework, translate documents in a job: upload in the job, store the document_id and key, then poll via a separate scheduled job or recursive re-enqueue until status is done. If no background framework exists, use the service's convenience method that handles the full lifecycle with a blocking poll, and call it from an existing async handler or worker thread.
+
+Step 4 — Implement the integration
+
+Add a translation step to the existing file handling flow. Call the service's document translation method — pass in the source file path or stream, the output path, and the source and target languages determined from the existing content metadata or user selection. Follow the project's conventions for where translated files are stored and how their locations are tracked. If a glossary is available from the project's glossary config, pass the glossary ID as an option.
+
+Step 5 — Expose a status and download mechanism
+
+Add status tracking if the background pattern is used — store pending, processing, or done on the relevant record. Add a download or retrieval endpoint following the project's existing API or file delivery conventions. If the project sends notifications on job completion, hook document translation completion into that system.
+
+Step 6 — Handle errors
+
+On authentication or quota errors, mark the record as failed with a clear error message. On document format errors from the API, return a structured error to the caller. Clean up any temporary files written during the process regardless of success or failure.
+
+Step 7 — Print a summary
+
+List every file created or modified and describe the end-to-end document translation flow as it will work after these changes.
 ```
-
----
-
-## Example output
-
-```
-Uploading document: sample.txt (1.2 KB) → DE
-Document ID: abc123...
-Status: translating (12s remaining)
-Status: translating (7s remaining)
-Status: done
-✓ Saved translated document to: sample_DE.txt
-  Billed characters: 423
-  Total time: 18.4 s
-```
-
----
-
-## Caveats
-
-- Document translation uses a **separate character quota** from text translation for `.pdf` files; other formats share the text quota.
-- The `document_key` is **secret** — treat it like a credential. Never log it.
-- Maximum file size is **10 MB** (free tier: **5 MB**).
-- PDFs are translated via OCR and may lose some formatting; prefer `.docx` when possible.
-- Once you download the result, the document is deleted from DeepL's servers (no second download).

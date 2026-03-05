@@ -1,77 +1,33 @@
-# Prompt: Translate Text with the DeepL API
+# translate.md — Wire DeepL translation into your application
 
-**Use when:** You want an AI assistant to generate code that sends one or more strings to the DeepL `/v2/translate` endpoint and returns the translated text.
-
----
-
-## Context
-
-The DeepL REST API translates text via a `POST` to `/v2/translate`. Key parameters:
-
-| Parameter | Required | Description |
-|---|---|---|
-| `text` | ✅ | Array of strings to translate (max 50 per request) |
-| `target_lang` | ✅ | BCP-47 target language code, e.g. `DE`, `FR`, `PT-BR` |
-| `source_lang` | optional | Omit to let DeepL auto-detect |
-| `formality` | optional | `default`, `more`, `less`, `prefer_more`, `prefer_less` |
-| `context` | optional | Additional context sentence (not translated, improves quality) |
-| `tag_handling` | optional | `html` or `xml` |
-| `glossary_id` | optional | UUID of a previously created glossary |
-| `split_sentences` | optional | `0`, `1` (default), or `nonewlines` |
-
-**Endpoints:**
-- Free tier: `https://api-free.deepl.com/v2/translate`
-- Paid tier: `https://api.deepl.com/v2/translate`
-
-Detect the tier by checking whether the key ends with `:fx`.
-
-**Authentication:** `Authorization: DeepL-Auth-Key <key>` header.
-
-**Rate limits:** Free tier is throttled; handle `429 Too Many Requests` with exponential back-off.
-
-**Quota exceeded:** HTTP `456 Quota Exceeded` — surface this as a distinct error.
+Finds existing text content flows in your codebase and integrates the DeepL service to translate them, using the service module created by the init prompts.
 
 ---
-
-## Prompt
 
 ```prompt
-You are an expert software engineer. Generate production-quality code that translates text using the DeepL REST API.
+You are adding translation capability to an existing application using a DeepL service that is already set up. Do not install any packages and do not modify the DeepL service module. You have full read and write access to this codebase.
 
-Requirements:
-1. Read the API key from the environment variable DEEPL_API_KEY.
-2. Detect whether the key ends with ":fx"; if so use "https://api-free.deepl.com/v2/translate", otherwise use "https://api.deepl.com/v2/translate".
-3. Accept an array of strings and a target language code as inputs.
-4. Make a POST request to /v2/translate with the body: { text: [...], target_lang: "..." }.
-5. Return the translated strings in the same order they were provided.
-6. Handle errors explicitly:
-   - 403 → throw AuthError("Invalid DeepL API key")
-   - 456 → throw QuotaError("DeepL character quota exceeded")
-   - 429 → retry up to 3 times with exponential back-off (1 s, 2 s, 4 s)
-   - any other non-2xx → throw ApiError with the status code and response body
-7. Log the detected source language for each translation to stdout.
-8. Include a short runnable example at the bottom of the file (translate "Hello, world!" to German).
+Step 1 — Verify the service exists
 
-Use idiomatic code for the target language. Add JSDoc / docstrings / XML docs as appropriate.
+Search dependency files for the deepl package or gem used by this project — deepl-node in package.json, deepl in requirements.txt or Pipfile, DeepL.net in a .csproj, deepl-rb in the Gemfile, the deepl-java Maven or Gradle dependency, the deeplcom/deepl-php Composer package, or api.deepl.com in HTTP clients. Then search the codebase for the service or wrapper module that imports this package. If either is missing, stop and tell the user to run 0_init.md followed by the appropriate 1_*.md for their language before continuing.
+
+Step 2 — Read the codebase
+
+Identify: how text content is stored — database columns, JSON files, CMS calls, i18n locale files, or in-memory strings. Where languages are determined — user preferences, URL parameters, request headers, a config file. Whether a caching layer exists for translated content. Where it makes most sense to add translation — a background job, a controller action, a middleware, an i18n loader hook, or a build-time script.
+
+Step 3 — Choose an integration pattern
+
+If locale files drive the UI, pattern A applies: create a one-time or scheduled script that iterates locale keys from the source language file, calls the translate method on the existing service for each value in batches, and writes the results into target locale files. If runtime translation is needed, pattern B applies: add a thin translation endpoint or middleware layer that calls the service and caches results by content hash and target language. If both apply, implement both.
+
+Step 4 — Implement the integration
+
+For pattern A, create the translation script following the project's scripting conventions. Accept source locale, a list of target locales, and a dry-run flag. Write only to locale files, never to the service module. For pattern B, add the endpoint or middleware using the same routing and handler style already in use, calling the service's translate method directly. Cache calls using whatever cache layer the project already has. In both cases, read the list of supported target languages from the service's getLanguages method if the project does not already hard-code a list.
+
+Step 5 — Handle errors and edge cases
+
+Wrap translation calls in a try/catch or equivalent. On authentication error, log clearly and fail fast. On quota exceeded, propagate a structured error so the caller layer can surface it to the operator. On network errors, let the retry logic in the service handle retries and let the exception propagate after exhausting retries rather than silently returning empty strings.
+
+Step 6 — Print a summary
+
+List every file created or modified and the command to run a quick smoke test, such as running the locale script with dry-run true or sending a test request to the new endpoint.
 ```
-
----
-
-## Example invocation
-
-```bash
-# Node.js
-DEEPL_API_KEY=your-key node examples/translate/node/index.js
-
-# Python
-DEEPL_API_KEY=your-key python examples/translate/python/main.py
-```
-
----
-
-## Caveats
-
-- `source_lang` and `target_lang` must be **uppercase** (e.g. `EN`, `DE`), except regional variants which use a hyphen (`PT-BR`, `ZH-HANS`).
-- The `formality` parameter is ignored for languages that don't support it (e.g. English, Chinese). If you pass it anyway, DeepL silently ignores it unless `prefer_*` variants are used.
-- A single request can contain up to **50 text strings** and up to **130,000 characters** total.
-- The response preserves array order — `translations[0]` corresponds to `text[0]`.

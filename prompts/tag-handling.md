@@ -1,100 +1,35 @@
-# Prompt: Translate HTML/XML While Preserving Tags
+# tag-handling.md — Enable HTML and XML tag handling in DeepL translation
 
-**Use when:** Your strings contain HTML or XML markup and you need the tags to survive translation intact — neither garbled nor moved to the wrong positions.
-
----
-
-## Context
-
-By default, DeepL treats `<b>`, `<br>`, `<span>`, etc. as plain text and may translate or misplace them. Set `tag_handling` to opt into structured-markup mode.
-
-**Endpoint:** `POST /v2/translate`
-
-### `tag_handling` values
-
-| Value | Behaviour |
-|---|---|
-| *(omitted)* | Tags treated as plain text — **do not use with HTML/XML** |
-| `html` | DeepL-aware HTML parsing; preserves all standard HTML tags in place |
-| `xml` | Generic XML mode; honours `splitting_tags`, `non_splitting_tags`, `ignore_tags` |
-
-### Additional XML-mode parameters
-
-| Parameter | Description | Example |
-|---|---|---|
-| `splitting_tags` | Tags that mark sentence boundaries | `["p", "br", "li"]` |
-| `non_splitting_tags` | Inline tags that should not split sentences | `["b", "i", "em", "strong", "span"]` |
-| `ignore_tags` | Tags whose content DeepL must NOT translate | `["code", "pre", "var"]` |
-| `outline_detection` | `1` (default) or `0` — auto-detect structure |
-
-### Example input / output
-
-```html
-<!-- Input (EN) -->
-<p>The <strong>quick</strong> brown fox jumps over the <em>lazy</em> dog.</p>
-
-<!-- Output (DE) -->
-<p>Der <strong>schnelle</strong> braune Fuchs springt über den <em>faulen</em> Hund.</p>
-```
-
-**Authentication:** `Authorization: DeepL-Auth-Key <key>` header.
+Finds translation call sites in your codebase that process rich text or HTML and enables tag-aware translation on those calls. Uses the service module from the init prompts.
 
 ---
-
-## Prompt
 
 ```prompt
-You are an expert software engineer. Generate code that translates HTML and XML strings with the DeepL API, preserving all markup correctly.
+You are enabling HTML and XML tag handling in an existing application that already has a DeepL service set up. Do not install any packages and do not modify the DeepL service module. You have full read and write access to this codebase.
 
-Requirements:
-1. Read DEEPL_API_KEY from the environment.
-2. Auto-select host: :fx → api-free.deepl.com, else api.deepl.com.
-3. Implement two functions:
-   a. translateHtml(htmlStrings: string[], targetLang: string, sourceLang?: string)
-      - Uses tag_handling: "html"
-      - Returns translated HTML strings in order
-   b. translateXml(xmlStrings: string[], targetLang: string, options: {
-        sourceLang?: string,
-        splittingTags?: string[],
-        nonSplittingTags?: string[],
-        ignoreTags?: string[]
-      })
-      - Uses tag_handling: "xml" with the provided options
-      - Returns translated XML strings in order
-4. After translation, verify (assert) that the number of opening tags in output matches the number in input for each string. Log a warning if they differ.
-5. Handle errors:
-   - 403 → AuthError
-   - 456 → QuotaError
-   - 429 → retry with back-off
-   - other non-2xx → ApiError
-6. Demo:
-   a. Translate an HTML snippet (a <p> with <strong>, <em>, and an <a href> link) from EN to DE. Print before/after.
-   b. Translate an XML snippet with a <code> block that must NOT be translated — use ignoreTags: ["code"]. Print before/after and confirm the code block is unchanged.
+Step 1 — Verify the service exists
 
-Use idiomatic code with docstrings/JSDoc and clean output.
+Search dependency files for the deepl package used by this project. Then search the codebase for the service or wrapper module that imports this package. If either is missing, stop and tell the user to run 0_init.md followed by the appropriate 1_*.md for their language before continuing.
+
+Step 2 — Identify rich-text fields and call sites
+
+Read the codebase for: database columns or schema fields typed as text or string that are known to hold HTML — look for names like body, content, description, html_content, rich_text. Locale file values that contain HTML tags. Template rendering logic that passes untranslated HTML strings to translation calls. Existing translation call sites where the text argument may contain angle brackets or HTML entities.
+
+Step 3 — Audit existing translation calls for HTML content
+
+For each existing translate call site, determine whether the text it processes can contain HTML markup. A call site handles HTML if it reads from a rich-text field, receives input from a WYSIWYG editor, renders into an HTML template without escaping, or its surrounding code shows sanitise or escape operations.
+
+Step 4 — Enable tag handling on HTML call sites
+
+For each confirmed HTML call site, add tagHandling set to html as an option on the translate call. Do not add tagHandling to call sites that process plain text — setting it unnecessarily changes how special characters are handled and can corrupt output.
+
+If the project also uses XML-structured content — XLIFF, TMX, or custom XML formats — set tagHandling to xml on those call sites and set the ignoreTags and splitSentences options appropriate to the format if the project has relevant content structure.
+
+Step 5 — Handle ignore tags if needed
+
+If specific HTML elements must be passed through untranslated — such as code blocks, variable placeholders, or product name spans — add those tag names to the ignoreTags option. Look for existing conventions in the project such as special CSS class names or data attributes that mark do-not-translate regions and map those to ignore tags.
+
+Step 6 — Print a summary
+
+List every file modified, the number of call sites updated, which were set to html and which to xml, and any tags added to ignoreTags.
 ```
-
----
-
-## Example output
-
-```
-=== HTML Translation (EN → DE) ===
-Input:  <p>The <strong>latest</strong> update is <a href="/changelog">available now</a>.</p>
-Output: <p>Das <strong>neueste</strong> Update ist <a href="/changelog">jetzt verfügbar</a>.</p>
-
-=== XML Translation with ignored <code> block (EN → DE) ===
-Input:  <p>Call the function <code>deepl.translate()</code> to start.</p>
-Output: <p>Rufen Sie die Funktion <code>deepl.translate()</code> auf, um zu beginnen.</p>
-✓ <code> block content unchanged
-```
-
----
-
-## Caveats
-
-- `tag_handling: "html"` does not validate whether the input is well-formed HTML. Malformed markup may produce unexpected output.
-- Attributes (like `href`, `class`) are **never translated** — only text nodes.
-- If you have `<script>` or `<style>` blocks, their contents are ignored automatically in `html` mode.
-- In `xml` mode, the document must be well-formed XML (properly closed tags). Pass `outline_detection: 0` if DeepL incorrectly merges sentences across tag boundaries.
-- Do not mix `tag_handling` with `split_sentences: 0` — it can cause erratic tag placement.
