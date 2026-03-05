@@ -1,0 +1,10 @@
+{
+  "name": "deepl-agent-trigger-workflow",
+  "version": "1.0.0",
+  "description": "Trigger an Agent API workflow",
+  "main": "index.js",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  }
+}

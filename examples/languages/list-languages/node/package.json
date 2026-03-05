@@ -1,0 +1,13 @@
+{
+  "name": "deepl-list-languages",
+  "version": "1.0.0",
+  "description": "List all supported source and target languages in the DeepL API",
+  "main": "index.js",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "deepl-node": "^1.14.0"
+  }
+}

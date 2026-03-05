@@ -1,0 +1,10 @@
+{
+  "name": "deepl-admin-set-key-usage-limit",
+  "version": "1.0.0",
+  "description": "Set a character usage limit on a developer API key using the DeepL Admin API",
+  "main": "index.js",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  }
+}

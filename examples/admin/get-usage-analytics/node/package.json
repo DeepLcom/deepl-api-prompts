@@ -1,0 +1,10 @@
+{
+  "name": "deepl-admin-get-usage-analytics",
+  "version": "1.0.0",
+  "description": "Retrieve usage analytics for the organisation using the DeepL Admin API",
+  "main": "index.js",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  }
+}

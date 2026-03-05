@@ -1,0 +1,13 @@
+{
+  "name": "deepl-get-usage",
+  "version": "1.0.0",
+  "description": "Retrieve usage and quota for the current DeepL API billing period",
+  "main": "index.js",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "deepl-node": "^1.14.0"
+  }
+}

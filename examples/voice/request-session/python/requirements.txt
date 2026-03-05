@@ -1,0 +1,2 @@
+# no extra dependencies — uses Python's built-in urllib
+# For WebSocket streaming, install: pip install websockets

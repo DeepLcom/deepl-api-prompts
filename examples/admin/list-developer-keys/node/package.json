@@ -1,0 +1,10 @@
+{
+  "name": "deepl-admin-list-developer-keys",
+  "version": "1.0.0",
+  "description": "List all developer API keys using the DeepL Admin API",
+  "main": "index.js",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "deepl-improve-text",
+  "version": "1.0.0",
+  "description": "Improve text using the DeepL Write API",
+  "main": "index.js",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "deepl-admin-deactivate-developer-key",
+  "version": "1.0.0",
+  "description": "Deactivate a developer API key using the DeepL Admin API",
+  "main": "index.js",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  }
+}

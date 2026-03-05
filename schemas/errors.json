@@ -1,0 +1,57 @@
+[
+  {
+    "errorCode": "400",
+    "errorReason": "Bad Request",
+    "errorMessage": "Parameter 'target_lang' not specified."
+  },
+  {
+    "errorCode": "400",
+    "errorReason": "Bad Request – Formality Not Supported",
+    "errorMessage": "Formality not supported for target language."
+  },
+  {
+    "errorCode": "400",
+    "errorReason": "Bad Request – Missing Source Language",
+    "errorMessage": "'source_lang' must be specified when 'glossary_id' is provided."
+  },
+  {
+    "errorCode": "403",
+    "errorReason": "Authentication Error",
+    "errorMessage": "Authorization failure, check authentication key."
+  },
+  {
+    "errorCode": "404",
+    "errorReason": "Resource Not Found",
+    "errorMessage": "The requested resource could not be found."
+  },
+  {
+    "errorCode": "413",
+    "errorReason": "Payload Too Large",
+    "errorMessage": "File exceeds maximum size limit (10 MB for paid tier, 5 MB for free tier)."
+  },
+  {
+    "errorCode": "415",
+    "errorReason": "Unsupported Media Type",
+    "errorMessage": "File type not supported for document translation."
+  },
+  {
+    "errorCode": "429",
+    "errorReason": "Too Many Requests",
+    "errorMessage": "Too many requests. Please retry with exponential back-off (1 s, 2 s, 4 s; max 3 retries)."
+  },
+  {
+    "errorCode": "456",
+    "errorReason": "Quota Exceeded",
+    "errorMessage": "Quota exceeded. The character quota for this billing period has been reached."
+  },
+  {
+    "errorCode": "500",
+    "errorReason": "Internal Server Error",
+    "errorMessage": "An unexpected error occurred on the server. Please retry later."
+  },
+  {
+    "errorCode": "503",
+    "errorReason": "Service Unavailable",
+    "errorMessage": "Translation not yet ready. Please retry later."
+  }
+]

@@ -50,6 +50,21 @@ cd dotnet && DEEPL_API_KEY=your-key dotnet run
 3. <!-- Step 3 -->
 4. Handles errors for auth failures and quota exceeded.
 
+## Sample response
+
+<!--
+  Paste the exact raw JSON (or other format) returned by the API for this example.
+  Use a fenced code block with the appropriate language tag (json, tsv, etc.).
+  For multi-step flows (e.g. document translation) add one block per step.
+  For endpoints that return an empty body (e.g. HTTP 204), document that explicitly.
+-->
+
+```json
+{
+  "key": "value"
+}
+```
+
 ## Prerequisites
 
 - A DeepL API key ([sign up free](https://www.deepl.com/pro#developer))

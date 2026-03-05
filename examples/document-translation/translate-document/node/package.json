@@ -1,0 +1,13 @@
+{
+  "name": "deepl-translate-document",
+  "version": "1.0.0",
+  "description": "Translate a document using the DeepL API",
+  "main": "index.js",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "deepl-node": "^1.14.0"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "deepl-agent-get-task-result",
+  "version": "1.0.0",
+  "description": "Poll an Agent API task and retrieve the result",
+  "main": "index.js",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  }
+}

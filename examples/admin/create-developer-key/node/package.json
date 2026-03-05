@@ -1,0 +1,10 @@
+{
+  "name": "deepl-admin-create-developer-key",
+  "version": "1.0.0",
+  "description": "Create a new developer API key using the DeepL Admin API",
+  "main": "index.js",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  }
+}

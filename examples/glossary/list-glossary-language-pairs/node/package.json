@@ -1,0 +1,16 @@
+{
+  "name": "deepl-list-glossary-language-pairs-example",
+  "version": "1.0.0",
+  "description": "DeepL API list-glossary-language-pairs example — Node.js",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "deepl-node": "^1.14.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT"
+}

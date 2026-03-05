@@ -1,0 +1,10 @@
+{
+  "name": "deepl-voice-request-session",
+  "version": "1.0.0",
+  "description": "Request a Voice API session for real-time speech translation",
+  "main": "index.js",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  }
+}
