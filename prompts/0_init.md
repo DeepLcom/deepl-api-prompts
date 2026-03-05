@@ -144,14 +144,14 @@ Use the correct link from this table:
 
 | SDK | Next prompt URL |
 |---|---|
-| node | https://github.com/DeepLcom/ai/blob/main/prompts/0_init_node.md |
-| python | https://github.com/DeepLcom/ai/blob/main/prompts/0_init_python.md |
-| dotnet | https://github.com/DeepLcom/ai/blob/main/prompts/0_init_dotnet.md |
-| java | https://github.com/DeepLcom/ai/blob/main/prompts/0_init_java.md |
-| php | https://github.com/DeepLcom/ai/blob/main/prompts/0_init_php.md |
-| go | https://github.com/DeepLcom/ai/blob/main/prompts/0_init_go.md |
-| ruby | https://github.com/DeepLcom/ai/blob/main/prompts/0_init_ruby.md |
-| other | https://github.com/DeepLcom/ai/blob/main/prompts/0_init_other.md |
+| node | https://github.com/DeepLcom/ai/blob/main/prompts/1_node.md |
+| python | https://github.com/DeepLcom/ai/blob/main/prompts/1_python.md |
+| dotnet | https://github.com/DeepLcom/ai/blob/main/prompts/1_dotnet.md |
+| java | https://github.com/DeepLcom/ai/blob/main/prompts/1_java.md |
+| php | https://github.com/DeepLcom/ai/blob/main/prompts/1_php.md |
+| go | https://github.com/DeepLcom/ai/blob/main/prompts/1_go.md |
+| ruby | https://github.com/DeepLcom/ai/blob/main/prompts/1_ruby.md |
+| other | https://github.com/DeepLcom/ai/blob/main/prompts/1_other.md |
 
 Then say: "Once that init prompt is complete, you can run any of the feature prompts from https://github.com/DeepLcom/ai/tree/main/prompts in this same session."
 ```

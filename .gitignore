@@ -1,0 +1,151 @@
+# =============================================================================
+# .NET / C#
+# =============================================================================
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+*.ncrunch*
+*.DotSettings.user
+project.lock.json
+project.fragment.lock.json
+artifacts/
+_ReSharper*/
+*.ReSharper
+TestResults/
+*.coverage
+*.coveragexml
+*.runsettings
+
+# =============================================================================
+# Node.js / TypeScript / JavaScript
+# =============================================================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+.npm/
+dist/
+build/
+.next/
+.nuxt/
+.output/
+.cache/
+*.tsbuildinfo
+.eslintcache
+.parcel-cache/
+
+# =============================================================================
+# Python
+# =============================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+ENV/
+.env/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pytype/
+*.egg-info/
+dist/
+build/
+*.egg
+MANIFEST
+.pdm.toml
+.pdm-python
+__pypackages__/
+Poetry.lock
+
+# =============================================================================
+# Java / Kotlin / Gradle / Maven
+# =============================================================================
+target/
+.gradle/
+build/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+hs_err_pid*
+.mtj.tmp/
+
+# =============================================================================
+# Go
+# =============================================================================
+*.exe
+*.exe~
+*.test
+*.out
+vendor/
+go.sum
+
+# =============================================================================
+# PHP / Composer
+# =============================================================================
+vendor/
+composer.lock
+.phpunit.result.cache
+.phpunit.cache/
+
+# =============================================================================
+# Ruby / Bundler
+# =============================================================================
+/.bundle/
+/vendor/bundle/
+Gemfile.lock
+*.gem
+.byebug_history
+
+# =============================================================================
+# Cloudflare Workers / Wrangler
+# =============================================================================
+.wrangler/
+worker-dist/
+
+# =============================================================================
+# Environment / secrets
+# =============================================================================
+.env
+.env.*
+!.env.example
+!.env.sample
+*.pem
+*.key
+
+# =============================================================================
+# Editor / OS artefacts
+# =============================================================================
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/settings.json
+.vscode/launch.json
+.vscode/*.log
+*.swp
+*.swo
+*~
