@@ -35,7 +35,9 @@ After running `0_init.md`, run the prompt for your language. It installs the SDK
 
 ## Feature prompts
 
-Run these after `0_init.md`. Each one checks that DeepL is already set up — if not, it will tell you to run `0_init.md` first.
+Run these after `0_init.md`. Each one:
+- Verifies the DeepL package and service module are present — if not, it stops and tells you to run `0_init.md` first.
+- Asks you for clarification before writing code if anything is ambiguous; it will not guess.
 
 | Prompt | What it does to your codebase |
 |---|---|
@@ -59,6 +61,11 @@ Run these after `0_init.md`. Each one checks that DeepL is already set up — if
 4. Review the summary the assistant prints at the end.
 
 **Always start with `0_init.md`** on a project that doesn't have DeepL yet.
+
+> **Prefer tools over prompts?**
+> If your AI assistant supports Model Context Protocol, you can connect a pre-built DeepL MCP server instead of running these prompts.
+> See [mcp.md](../mcp.md) for the full-featured `deepl-mcp-server`, or [mcp-servers/README.md](../mcp-servers/README.md) for the focused mini MCP servers.
+> These prompts remain the right choice for integrating DeepL directly into your codebase.
 
 ---
 

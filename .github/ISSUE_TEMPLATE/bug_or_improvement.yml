@@ -1,0 +1,83 @@
+name: Bug report / improvement
+description: Report a problem or suggest an improvement to a prompt, code example, MCP server, or schema.
+title: "[<area>] "
+labels: []
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: What area does this relate to?
+      description: Pick the closest match. This helps route the issue to the right reviewer.
+      options:
+        - Prompt (prompts/)
+        - Code example (examples/)
+        - MCP server (mcp-servers/)
+        - Schema — OpenAPI or Postman (schemas/)
+        - Documentation / README
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: location
+    attributes:
+      label: File or directory
+      description: Path to the affected file or directory, e.g. `prompts/glossary.md` or `examples/translate/translate-text/node/`.
+      placeholder: e.g. examples/translate/translate-text/python/
+
+  - type: dropdown
+    id: language
+    attributes:
+      label: Runtime / language (if applicable)
+      description: Which language or runtime does this affect? Leave blank if not applicable.
+      options:
+        - Node.js / TypeScript
+        - Python
+        - .NET / C#
+        - Java
+        - PHP
+        - Go
+        - Ruby
+        - Shell / curl
+        - Not applicable
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the issue
+      description: What is wrong or could be improved? Be specific — include the exact error message, unexpected output, or the part of the prompt that is unclear.
+      placeholder: |
+        When I run `DEEPL_API_KEY=... python main.py`, I get:
+        DeepL.exceptions.AuthorizationError: ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+      description: What did you expect to happen instead?
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce (code examples only)
+      description: Paste the exact commands you ran, including the environment setup.
+      render: bash
+
+  - type: input
+    id: deepl-plan
+    attributes:
+      label: DeepL API plan
+      description: Free tier (key ends in `:fx`) or paid tier? Some examples behave differently between tiers.
+      placeholder: Free / Paid / N/A
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues and this is not a duplicate.
+          required: true
+        - label: My API key is not included anywhere in this report.
+          required: true

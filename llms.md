@@ -11,8 +11,9 @@ Human-friendly documentation lives in README.md and CONTRIBUTING.md.
 This repository contains:
 1. **Prompts** (`/prompts/`) — self-contained natural-language prompts to paste into any AI assistant (Claude, ChatGPT, Copilot, Cursor, etc.) to generate working DeepL API code.
 2. **Examples** (`/examples/`) — runnable, tested code in Node.js, Python, and .NET that demonstrates each DeepL API feature.
-3. **Schemas** (`/schemas/`) — an OpenAPI 3.1 spec and a Postman v2.1 collection covering the full DeepL REST API v2.
-4. **Templates** (`/_templates/`) — contribution scaffolding for adding new prompts and examples consistently.
+3. **MCP Servers** (`/mcp-servers/`) — five focused Model Context Protocol servers, each scoped to a single DeepL API domain, available in Node.js, .NET, Cloudflare Worker, and Docker flavours.
+4. **Schemas** (`/schemas/`) — an OpenAPI 3.1 spec and a Postman v2.1 collection covering the full DeepL REST API v2.
+5. **Templates** (`/_templates/`) — contribution scaffolding for adding new prompts and examples consistently.
 
 The target API is the **DeepL REST API** — primarily v2 (`https://api-free.deepl.com/v2` / `https://api.deepl.com/v2`), plus v3 for Voice (`https://api.deepl.com/v3`) and the unstable v1 Agent API (`https://api.deepl.com/v1/unstable`).
 
@@ -209,6 +210,7 @@ All runtimes: Python, Node.js, curl. No SDK support — all examples use raw HTT
 |---|---|
 | `_templates/prompt.template.md` | Scaffold for adding a new prompt file to `/prompts/`. Fill in: feature name, endpoint table, self-contained prompt block, example invocation, caveats. |
 | `_templates/example.readme.template.md` | Scaffold for the `README.md` of a new example directory under `/examples/`. Fill in: feature name, file table, quick-start commands, step-by-step description. |
+| `_templates/mini-mcp.template.md` | Scaffold for the `README.md` of a new mini MCP server under `/mcp-servers/`. Fill in: server name, domain, tools table, environment variables, quick-start commands. |
 
 ---
 
@@ -311,5 +313,7 @@ Use the `output_format` parameter to convert between formats during translation 
 - New prompt → copy `_templates/prompt.template.md`, save to `prompts/<feature>.md`, add a row to the prompts index in this file and in `prompts/README.md`
 - New example → create `examples/<category>/<use-case>/`, copy `_templates/example.readme.template.md` as `README.md`, add `python/`, `node/`, and optionally `dotnet/` subdirectories, then add a row to the examples index in this file and in `examples/README.md`
 - New runtime for existing example → add a subdirectory (`go/`, `ruby/`, etc.) with a manifest and single entry-point; update the example's `README.md` and this file
+- New MCP server → create `mcp-servers/<name>-mcp/` with `node/`, `cloudflare-worker/`, `dotnet/`, and `Dockerfile`; copy `_templates/mini-mcp.template.md` as `README.md`; add a row to the MCP servers index in `mcp-servers/README.md` and in this file
+- New tool for existing MCP server → add to the server's implementation files, keep tool name consistent with `/schemas/openapi.json`, update the server's `README.md` and this file
 - Schema changes → update `schemas/openapi.json` to OpenAPI 3.1 and `schemas/postman_collection.json` to v2.1; keep them in sync
 - Admin / Voice / Agent examples require enterprise or limited-access keys; note this clearly in the `README.md` Prerequisites section

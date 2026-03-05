@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or discussion
+    url: https://github.com/DeepLcom/deepl-api-prompts/discussions
+    about: Ask a question or share ideas — use GitHub Discussions instead of an issue.
+  - name: DeepL API documentation
+    url: https://developers.deepl.com/docs
+    about: Official DeepL API reference.

@@ -5,7 +5,7 @@
   1. Replace <Feature Name> with the DeepL feature this example covers.
   2. Fill in all sections. Remove HTML comments before committing.
   3. Place this README.md at the root of your example directory,
-     e.g. examples/my-feature/README.md
+     e.g. examples/my-feature/my-variant/README.md
 -->
 
 <!-- One-sentence description of what this example demonstrates. -->
@@ -19,11 +19,10 @@
 
 | File | Description |
 |---|---|
-| `curls.sh` | Minimal `curl` reference commands |
-| `openapi.yaml` | OpenAPI 3.1 snippet (optional â€” include if the endpoint is complex) |
-| `node/` | Node.js implementation |
-| `python/` | Python implementation |
-| `dotnet/` | .NET / C# implementation (optional) |
+| `curl.sh` | Minimal `curl` reference commands |
+| `node/` | Node.js implementation (`deepl-node`) |
+| `python/` | Python implementation (`deepl`) |
+| `dotnet/` | .NET / C# implementation (`DeepL.net`) — include if adding .NET |
 
 ## Quick start
 
@@ -42,13 +41,13 @@ cd dotnet && DEEPL_API_KEY=your-key dotnet run
 
 <!--
   Step-by-step numbered list of what the example code actually does.
-  Keep it brief â€” 3 to 7 steps.
+  Keep it brief — 3 to 7 steps.
 -->
 
 1. Reads `DEEPL_API_KEY` from the environment.
-2. <!-- Step 2 -->
+2. Auto-selects the correct API host: keys ending in `:fx` use `api-free.deepl.com`, otherwise `api.deepl.com`.
 3. <!-- Step 3 -->
-4. Handles errors for auth failures and quota exceeded.
+4. Handles errors: 403 (auth), 456 (quota exceeded), 429 (rate limit — retries with exponential back-off).
 
 ## Sample response
 
