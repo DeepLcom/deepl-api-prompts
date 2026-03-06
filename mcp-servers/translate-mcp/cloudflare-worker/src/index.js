@@ -17,7 +17,7 @@ import { z } from "zod";
 const BASE = "https://api.deepl.com";
 
 function headers(apiKey) {
-  return { Authorization: `DeepL-Auth-Key ${apiKey}`, "Content-Type": "application/json" };
+  return { Authorization: `DeepL-Auth-Key ${apiKey}`, "Content-Type": "application/json", "User-Agent": "DeepL-MCP-translate/1.0.0" };
 }
 
 async function apiFetch(apiKey, path, options = {}) {
@@ -123,7 +123,7 @@ function buildServer(apiKey) {
 
       const uploadRes = await fetch(`${BASE}/v2/document`, {
         method: "POST",
-        headers: { Authorization: `DeepL-Auth-Key ${apiKey}` },
+        headers: { Authorization: `DeepL-Auth-Key ${apiKey}`, "User-Agent": "DeepL-MCP-translate/1.0.0" },
         body: form,
       });
       if (!uploadRes.ok)
@@ -137,7 +137,7 @@ function buildServer(apiKey) {
         await new Promise((r) => setTimeout(r, 2000));
         const statusRes = await fetch(`${BASE}/v2/document/${document_id}`, {
           method: "POST",
-          headers: { Authorization: `DeepL-Auth-Key ${apiKey}`, "Content-Type": "application/json" },
+          headers: { Authorization: `DeepL-Auth-Key ${apiKey}`, "Content-Type": "application/json", "User-Agent": "DeepL-MCP-translate/1.0.0" },
           body: JSON.stringify({ document_key }),
         });
         status = await statusRes.json();
@@ -149,7 +149,7 @@ function buildServer(apiKey) {
 
       const dlRes = await fetch(`${BASE}/v2/document/${document_id}/result`, {
         method: "POST",
-        headers: { Authorization: `DeepL-Auth-Key ${apiKey}`, "Content-Type": "application/json" },
+        headers: { Authorization: `DeepL-Auth-Key ${apiKey}`, "Content-Type": "application/json", "User-Agent": "DeepL-MCP-translate/1.0.0" },
         body: JSON.stringify({ document_key }),
       });
       const resultBuffer = await dlRes.arrayBuffer();

@@ -31,6 +31,7 @@ function buildServer(apiKey) {
         headers: {
           Authorization: `DeepL-Auth-Key ${apiKey}`,
           "Content-Type": "application/json",
+          "User-Agent": "DeepL-MCP-voice/1.0.0",
         },
         body: JSON.stringify({
           source_language: sourceLanguage,

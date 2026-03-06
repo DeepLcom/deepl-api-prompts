@@ -24,6 +24,7 @@ builder.Services.AddHttpClient("deepl-admin", client =>
     client.BaseAddress = new Uri("https://api.deepl.com");
     client.DefaultRequestHeaders.Authorization =
         new AuthenticationHeaderValue("DeepL-Auth-Key", adminKey);
+    client.DefaultRequestHeaders.Add("User-Agent", "DeepL-MCP-admin/1.0.0");
 });
 
 var app = builder.Build();

@@ -17,7 +17,7 @@ import { z } from "zod";
 const BASE = "https://api.deepl.com";
 
 function buildServer(apiKey) {
-  const authHeader = { Authorization: `DeepL-Auth-Key ${apiKey}` };
+  const authHeader = { Authorization: `DeepL-Auth-Key ${apiKey}`, "User-Agent": "DeepL-MCP-agent/1.0.0" };
   const server = new McpServer({ name: "deepl-agent-mcp", version: "1.0.0" });
 
   server.tool(
