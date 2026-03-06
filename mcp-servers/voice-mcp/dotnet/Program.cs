@@ -24,6 +24,7 @@ builder.Services.AddHttpClient("deepl", client =>
     client.BaseAddress = new Uri("https://api.deepl.com");
     client.DefaultRequestHeaders.Authorization =
         new AuthenticationHeaderValue("DeepL-Auth-Key", apiKey);
+    client.DefaultRequestHeaders.Add("User-Agent", "DeepL-MCP-voice/1.0.0");
 });
 
 var app = builder.Build();

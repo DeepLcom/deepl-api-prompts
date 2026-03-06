@@ -30,6 +30,7 @@ function authHeaders() {
   return {
     Authorization: `DeepL-Auth-Key ${key}`,
     "Content-Type": "application/json",
+    "User-Agent": "DeepL-MCP-translate/1.0.0",
   };
 }
 
@@ -159,7 +160,7 @@ function buildServer() {
       // Step 1: Upload document
       const uploadRes = await fetch(`${BASE_URL}/v2/document`, {
         method: "POST",
-        headers: { Authorization: `DeepL-Auth-Key ${key}` },
+        headers: { Authorization: `DeepL-Auth-Key ${key}`, "User-Agent": "DeepL-MCP-translate/1.0.0" },
         body: formData,
       });
       if (!uploadRes.ok) throw new Error(`Upload error ${uploadRes.status}: ${await uploadRes.text()}`);
@@ -171,7 +172,7 @@ function buildServer() {
         await new Promise((r) => setTimeout(r, 2000));
         const statusRes = await fetch(`${BASE_URL}/v2/document/${document_id}`, {
           method: "POST",
-          headers: { Authorization: `DeepL-Auth-Key ${key}`, "Content-Type": "application/json" },
+          headers: { Authorization: `DeepL-Auth-Key ${key}`, "Content-Type": "application/json", "User-Agent": "DeepL-MCP-translate/1.0.0" },
           body: JSON.stringify({ document_key }),
         });
         status = await statusRes.json();
@@ -183,7 +184,7 @@ function buildServer() {
       // Step 3: Download result
       const dlRes = await fetch(`${BASE_URL}/v2/document/${document_id}/result`, {
         method: "POST",
-        headers: { Authorization: `DeepL-Auth-Key ${key}`, "Content-Type": "application/json" },
+        headers: { Authorization: `DeepL-Auth-Key ${key}`, "Content-Type": "application/json", "User-Agent": "DeepL-MCP-translate/1.0.0" },
         body: JSON.stringify({ document_key }),
       });
       if (!dlRes.ok) throw new Error(`Download error ${dlRes.status}`);

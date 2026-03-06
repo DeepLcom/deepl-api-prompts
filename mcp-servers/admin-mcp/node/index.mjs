@@ -27,6 +27,7 @@ function authHeaders() {
   return {
     Authorization: `DeepL-Auth-Key ${key}`,
     "Content-Type": "application/json",
+    "User-Agent": "DeepL-MCP-admin/1.0.0",
   };
 }
 

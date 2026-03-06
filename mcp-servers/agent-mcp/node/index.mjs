@@ -26,7 +26,7 @@ function apiKey() {
 }
 
 function authHeader() {
-  return { Authorization: `DeepL-Auth-Key ${apiKey()}` };
+  return { Authorization: `DeepL-Auth-Key ${apiKey()}`, "User-Agent": "DeepL-MCP-agent/1.0.0" };
 }
 
 // ── Server ──────────────────────────────────────────────────────────────────

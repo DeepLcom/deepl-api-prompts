@@ -19,6 +19,7 @@ function authHeaders(apiKey) {
   return {
     Authorization: `DeepL-Auth-Key ${apiKey}`,
     "Content-Type": "application/json",
+    "User-Agent": "DeepL-MCP-glossary/1.0.0",
   };
 }
 
@@ -96,6 +97,7 @@ function buildServer(apiKey) {
         headers: {
           Authorization: `DeepL-Auth-Key ${apiKey}`,
           Accept: "text/tab-separated-values",
+          "User-Agent": "DeepL-MCP-glossary/1.0.0",
         },
       });
       if (!res.ok) throw new Error(`DeepL API error ${res.status}`);

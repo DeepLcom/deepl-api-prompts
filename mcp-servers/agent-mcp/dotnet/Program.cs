@@ -24,6 +24,7 @@ builder.Services.AddHttpClient("deepl-agent", client =>
     client.BaseAddress = new Uri("https://api.deepl.com");
     client.DefaultRequestHeaders.Authorization =
         new AuthenticationHeaderValue("DeepL-Auth-Key", apiKey);
+    client.DefaultRequestHeaders.Add("User-Agent", "DeepL-MCP-agent/1.0.0");
     client.Timeout = TimeSpan.FromMinutes(10); // long-running tasks
 });
 
